@@ -64,5 +64,62 @@ namespace SharpCoding.SharpHelpers
             }
             return ret;
         }
+
+        /// <summary>
+        /// Tries to add a key-value pair to the dictionary. If the key already exists, it updates the value.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to operate on.</param>
+        /// <param name="key">The key to add or update.</param>
+        /// <param name="value">The value to associate with the key.</param>
+        public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                dictionary[key] = value;
+            }
+            else
+            {
+                dictionary.Add(key, value);
+            }
+        }
+
+        /// <summary>
+        /// Removes the entry with the specified key if it exists in the dictionary, and returns a boolean indicating success.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to operate on.</param>
+        /// <param name="key">The key to remove.</param>
+        /// <returns>True if the key was found and removed, otherwise false.</returns>
+        public static bool RemoveIfExists<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
+        {
+            return dictionary.Remove(key);
+        }
+
+        /// <summary>
+        /// Merges the entries from another dictionary into the current dictionary. If a key already exists, its value is updated.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to operate on.</param>
+        /// <param name="otherDictionary">The dictionary to merge from.</param>
+        public static void Merge<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> otherDictionary)
+        {
+            foreach (var kvp in otherDictionary)
+            {
+                dictionary.AddOrUpdate(kvp.Key, kvp.Value);
+            }
+        }
+
+        /// <summary>
+        /// Converts the dictionary into a readable string format, useful for debugging.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to convert to a string.</param>
+        /// <returns>A string representation of the dictionary.</returns>
+        public static string ToReadableString<TKey, TValue>(this Dictionary<TKey, TValue> dictionary)
+        {
+            var entries = new List<string>();
+            foreach (var kvp in dictionary)
+            {
+                entries.Add($"{kvp.Key}: {kvp.Value}");
+            }
+            return "{" + string.Join(", ", entries) + "}";
+        }
     }
 }

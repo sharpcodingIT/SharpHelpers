@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using SharpCoding.SharpHelpers.DomainModel;
 using SharpCoding.SharpHelpers.PrivateMethods;
@@ -223,8 +223,13 @@ namespace SharpCoding.SharpHelpers
         /// <param name="strJson"></param>
         public static T JsonToObject<T>(this string strJson)
         {
-            return JsonConvert.DeserializeObject<T>(strJson,
-                                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+                PropertyNameCaseInsensitive = true
+            };
+
+            return JsonSerializer.Deserialize<T>(strJson, options);
         }
 
         /// <summary>

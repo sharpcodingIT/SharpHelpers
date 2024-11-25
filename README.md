@@ -1,4 +1,9 @@
-[![Github license](mit.svg)](https://github.com/sharpcode-it/SharpHelpers/blob/master/LICENSE)
+# SharpHelpers (SharpCoding Community Library)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Nuget](https://img.shields.io/nuget/v/SharpHelpers?style=plastic)](https://www.nuget.org/packages/SharpHelpers)
+[![issues - SharpHelpers](https://img.shields.io/github/issues/sharpcode-it/SharpHelpers)](https://github.com/sharpcode-it/SharpHelpers/issues)
+[![stars - SharpHelpers](https://img.shields.io/github/stars/sharpcode-it/SharpHelpers?style=social)](https://github.com/sharpcode-it/SharpHelpers)
  
 |Version|Status|
 |:-:|:-:|
@@ -6,7 +11,6 @@
 |Master|![.NET Core](https://github.com/sharpcode-it/SharpHelpers/workflows/.NET%20Core/badge.svg?branch=master)|
 |v1.0|![.NET Core](https://github.com/sharpcode-it/SharpHelpers/workflows/.NET%20Core/badge.svg?branch=v1.0)|
 
-# SharpHelpers (SharpCoding Community Library)
 --------------------------------------
 ## What is this?
 
@@ -14,13 +18,13 @@ SharpHelpers is a collections of some handy code packages and tutorials to make 
 
 Get SharpHelpers:
 
-	git clone git://github.com/sharpcodingIT/SharpHelpers/
+`git clone git://github.com/sharpcodingIT/SharpHelpers/`
 	
 --------------------------------------
 ## What do i find?
 
 The library contains a series of Helpers, under MIT license for use and consumption of any developer.
-The project contains several helpers for the manipulation and management of different types of primitive type:
+The project includes various helpers designed for the manipulation and management of different primitive types:
 - Boolean
 - Byte
 - Enum
@@ -35,6 +39,7 @@ The project contains several helpers for the manipulation and management of diff
 - DateTime
 - Regex
 - XmlDocument
+- DataTable
 	
 --------------------------------------
 ## Contributing
@@ -46,6 +51,11 @@ Want to contribute? Great! Here are a few guidelines.
 3. All code should have a unit test. If you make a feature, there should be significant tests around the feature. If you do a bug fix, there should be a test specific to that bug so it doesn't happen again.
 4. Pull requests should have a single commit. If you have multiple commits, squash them into a single commit before requesting a pull.
 5. Try and follow the code styling already in place.
+
+ * [Setting up Git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git)
+ * [Fork the repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+ * [Open an issue](https://github.com/sharpcode-it/SharpHelpers/issues) if you encounter a bug or have a suggestion for improvements/features
+ 
 --------------------------------------
 ### License
 

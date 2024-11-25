@@ -3,7 +3,7 @@
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace SharpCoding.SharpHelpers.ObjectExtensions
 {
@@ -16,7 +16,7 @@ namespace SharpCoding.SharpHelpers.ObjectExtensions
         /// <returns></returns>
         public static string SerializeToJson(this object istance)
         {
-            return istance == null ? string.Empty : JsonConvert.SerializeObject(istance);
+            return istance == null ? string.Empty : JsonSerializer.Serialize(istance);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace SharpCoding.SharpHelpers.ObjectExtensions
         /// <returns></returns>
         public static T DeserializeFromJson<T>(this string istance) where T : class
         {
-            return string.IsNullOrEmpty(istance) ? default : JsonConvert.DeserializeObject<T>(istance);
+            return string.IsNullOrEmpty(istance) ? default : JsonSerializer.Deserialize<T>(istance);
         }
 
         /// <summary>

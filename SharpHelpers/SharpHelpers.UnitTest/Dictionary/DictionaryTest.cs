@@ -4,37 +4,184 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpCoding.SharpHelpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SharpHelpers.UnitTest.Dictionary
 {
-
     [TestClass]
     public class DictionaryTest
     {
         [TestMethod]
-        public void TestAddFormat()
+        public void AddFormat_ShouldAddFormattedStringToDictionary()
         {
-            var dic = new Dictionary<int, DateTime>() { { 1, DateTime.Now }, { 2, DateTime.Now } };
-             
-        }
-        [TestMethod]
-        public void TestRemoveAll()
-        {
-            var dic = new Dictionary<int, DateTime>() { { 1, DateTime.Now }, { 2, DateTime.Now } };
-            dic.RemoveAll(a=> a.Key < 2 );
-            Assert.IsTrue(dic.Count() == 1);
+            // Arrange
+            var dictionary = new Dictionary<int, string>();
 
-        }
-        [TestMethod]
-        public void TestGetOrCreate()
-        {
-            var dic = new Dictionary<int,DateTime>() { { 1, DateTime.Now }, { 2, DateTime.Now} };
-            Assert.IsNotNull(dic.GetOrCreate(1));
-            Assert.IsNotNull(dic.GetOrCreate(3));
+            // Act
+            dictionary.AddFormat(1, "Hello, {0}!", "World");
 
-          
+            // Assert
+            Assert.AreEqual("Hello, World!", dictionary[1]);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void AddFormat_ShouldThrowArgumentNullException_WhenDictionaryIsNull()
+        {
+            // Arrange
+            Dictionary<int, string> dictionary = null;
+
+            // Act
+            dictionary.AddFormat(1, "Hello, {0}!", "World");
+
+            // Assert - [ExpectedException] handles the assertion
+        }
+
+        [TestMethod]
+        public void RemoveAll_ShouldRemoveItemsBasedOnCondition()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>
+            {
+                { 1, "Apple" },
+                { 2, "Banana" },
+                { 3, "Avocado" }
+            };
+
+            // Act
+            dictionary.RemoveAll(kvp => kvp.Value.StartsWith("A"));
+
+            // Assert
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsTrue(dictionary.ContainsKey(2));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void RemoveAll_ShouldThrowArgumentNullException_WhenDictionaryIsNull()
+        {
+            // Arrange
+            Dictionary<int, string> dictionary = null;
+
+            // Act
+            dictionary.RemoveAll(kvp => kvp.Value.StartsWith("A"));
+
+            // Assert - [ExpectedException] handles the assertion
+        }
+
+        [TestMethod]
+        public void GetOrCreate_ShouldCreateAndReturnNewValue_WhenKeyDoesNotExist()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, List<string>>();
+
+            // Act
+            var result = dictionary.GetOrCreate(1);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count);
+            Assert.IsTrue(dictionary.ContainsKey(1));
+        }
+
+        [TestMethod]
+        public void AddOrUpdate_ShouldAddNewItem_WhenKeyDoesNotExist()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>();
+
+            // Act
+            dictionary.AddOrUpdate(1, "NewValue");
+
+            // Assert
+            Assert.AreEqual("NewValue", dictionary[1]);
+        }
+
+        [TestMethod]
+        public void AddOrUpdate_ShouldUpdateExistingItem_WhenKeyExists()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>
+            {
+                { 1, "OldValue" }
+            };
+
+            // Act
+            dictionary.AddOrUpdate(1, "UpdatedValue");
+
+            // Assert
+            Assert.AreEqual("UpdatedValue", dictionary[1]);
+        }
+
+        [TestMethod]
+        public void RemoveIfExists_ShouldReturnTrueAndRemoveItem_WhenKeyExists()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>
+            {
+                { 1, "Value" }
+            };
+
+            // Act
+            var result = dictionary.RemoveIfExists(1);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.IsFalse(dictionary.ContainsKey(1));
+        }
+
+        [TestMethod]
+        public void RemoveIfExists_ShouldReturnFalse_WhenKeyDoesNotExist()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>();
+
+            // Act
+            var result = dictionary.RemoveIfExists(1);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void Merge_ShouldMergeDictionariesAndUpdateValues()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>
+            {
+                { 1, "Value1" },
+                { 2, "Value2" }
+            };
+
+            var otherDictionary = new Dictionary<int, string>
+            {
+                { 2, "UpdatedValue2" },
+                { 3, "Value3" }
+            };
+
+            // Act
+            dictionary.Merge(otherDictionary);
+
+            // Assert
+            Assert.AreEqual(3, dictionary.Count);
+            Assert.AreEqual("UpdatedValue2", dictionary[2]);
+            Assert.AreEqual("Value3", dictionary[3]);
+        }
+
+        [TestMethod]
+        public void ToReadableString_ShouldReturnFormattedStringRepresentationOfDictionary()
+        {
+            // Arrange
+            var dictionary = new Dictionary<int, string>
+            {
+                { 1, "Value1" },
+                { 2, "Value2" }
+            };
+
+            // Act
+            var result = dictionary.ToReadableString();
+
+            // Assert
+            Assert.AreEqual("{1: Value1, 2: Value2}", result);
         }
     }
-
 }

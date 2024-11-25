@@ -1,4 +1,4 @@
-﻿// (c) 2023 SharpCoding
+// (c) 2023 SharpCoding
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
