@@ -13,18 +13,26 @@
     <PackageTags>SharpCoding, Helpers, C#</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Description>SharpHelpers is a collections of some handy code packages and tutorials to make developer's life easier.</Description>
-    <Version>1.0.1</Version>
+    <Version>2.2.0</Version>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>8</LangVersion>
     <PackageIcon>ico.png</PackageIcon>
     <PackageIconUrl />
+    <PackageProjectUrl>https://github.com/sharpcode-it/SharpHelpers</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion>2.2.0</AssemblyVersion>
+    <FileVersion>2.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
     <None Include="Asset\ico.png">
       <Pack>True</Pack>
