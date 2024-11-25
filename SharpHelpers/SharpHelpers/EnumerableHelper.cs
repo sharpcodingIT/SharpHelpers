@@ -268,5 +268,122 @@ namespace SharpCoding.SharpHelpers
 
             return source.Select(selector).Sum();
         }
+
+        /// <summary>
+        /// Returns the maximum element based on a given selector function.
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector)
+            where TKey : IComparable<TKey>
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+            return source.Aggregate((maxItem, nextItem) => selector(nextItem).CompareTo(selector(maxItem)) > 0 ? nextItem : maxItem);
+        }
+
+        /// <summary>
+        /// Returns the minimum element based on a given selector function.
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector)
+            where TKey : IComparable<TKey>
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+            return source.Aggregate((minItem, nextItem) => selector(nextItem).CompareTo(selector(minItem)) < 0 ? nextItem : minItem);
+        }
+
+        /// <summary>
+        /// Finds the index of the first element that satisfies a given predicate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static int FindIndex<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+
+            int index = 0;
+            foreach (var item in source)
+            {
+                if (predicate(item)) return index;
+                index++;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Checks if the source contains any of the specified items.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool ContainsAny<T>(this IEnumerable<T> source, params T[] items)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (items == null) throw new ArgumentNullException(nameof(items));
+
+            var set = new HashSet<T>(items);
+            return source.Any(set.Contains);
+        }
+
+        /// <summary>
+        /// Checks if the source contains all of the specified items.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool ContainsAll<T>(this IEnumerable<T> source, params T[] items)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (items == null) throw new ArgumentNullException(nameof(items));
+
+            var set = new HashSet<T>(source);
+            return items.All(set.Contains);
+        }
+
+        /// <summary>
+        /// Returns the median of a sequence of numbers.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static double Median(this IEnumerable<int> source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var sortedList = source.OrderBy(n => n).ToList();
+            int count = sortedList.Count;
+            if (count == 0)
+                throw new InvalidOperationException("The source sequence is empty.");
+
+            if (count % 2 == 0)
+            {
+                return (sortedList[count / 2 - 1] + sortedList[count / 2]) / 2.0;
+            }
+            else
+            {
+                return sortedList[count / 2];
+            }
+        }
     }
 }
