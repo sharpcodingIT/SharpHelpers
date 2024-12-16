@@ -14,83 +14,146 @@ namespace SharpCoding.SharpHelpers.ObjectExtensions
         #region Private Properties
 
         private const BindingFlags Binding = BindingFlags.Instance |
-                                             BindingFlags.NonPublic | BindingFlags.Public |
+                                             BindingFlags.NonPublic |
+                                             BindingFlags.Public |
                                              BindingFlags.FlattenHierarchy;
 
         #endregion
 
-        public static T Clone<T>(this object istance,ICollection<string> propertyExcludeList = null)
+        /// <summary>
+        /// Clones an object and returns a deep copy of type T.
+        /// Excluded properties can be specified via a list of property names.
+        /// </summary>
+        /// <typeparam name="T">The type of the cloned object.</typeparam>
+        /// <param name="instance">The object to clone.</param>
+        /// <param name="propertyExcludeList">A list of property names to exclude from cloning.</param>
+        /// <returns>A deep copy of the object, or default(T) if the object is null.</returns>
+        public static T Clone<T>(this object instance, ICollection<string> propertyExcludeList = null)
         {
-            if (istance == null)
+            if (instance == null)
                 return default;
 
-            return (T) DeepClone(istance,propertyExcludeList);
+            return (T)DeepClone(instance, propertyExcludeList);
         }
 
-        public static object Clone(this object istance)
+        /// <summary>
+        /// Clones an object and returns a deep copy.
+        /// </summary>
+        /// <param name="instance">The object to clone.</param>
+        /// <returns>A deep copy of the object.</returns>
+        public static object Clone(this object instance)
         {
-            return DeepClone(istance);
+            return DeepClone(instance);
         }
 
-        #region Privat Method Deep Clone
+        #region Private Method: DeepClone
 
-        // Clone the object Properties and its children recursively
-        private static object DeepClone(object istance,ICollection<string> propertyExcludeList = null)
+        /// <summary>
+        /// Recursively clones an object and its children.
+        /// </summary>
+        /// <param name="instance">The object to clone.</param>
+        /// <param name="propertyExcludeList">A list of property names to exclude from cloning.</param>
+        /// <returns>A deep copy of the object.</returns>
+        private static object DeepClone(object instance, ICollection<string> propertyExcludeList = null)
         {
-            var desireObjectToBeCloned = istance;
+            if (instance == null)
+                return null;
 
-            var primaryType = istance.GetType();
+            var primaryType = instance.GetType();
 
+            // Handle arrays
             if (primaryType.IsArray)
-                return ((Array) desireObjectToBeCloned).Clone();
+                return ((Array)instance).Clone();
 
-            object tObject = desireObjectToBeCloned as IList;
-            if (tObject != null)
+            // Handle collections (IList)
+            if (typeof(IList).IsAssignableFrom(primaryType))
             {
-                var properties = primaryType.GetProperties();
-                // Get the IList Type of the object
-                var customList = typeof(List<>).MakeGenericType
-                    ((properties[properties.Length - 1]).PropertyType);
-                tObject = (IList) Activator.CreateInstance(customList);
-                var list = (IList) tObject;
-                // loop throw each object in the list and clone it
-                foreach (var item in ((IList) desireObjectToBeCloned))
-                {
-                    if (item == null)
-                        continue;
-                    var value = DeepClone(item,propertyExcludeList);
-                    list?.Add(value);
-                }
-            }
-            else
-            {
-                // if the item is a string then Clone it and return it directly.
-                if (primaryType == typeof(string))
-                    return (desireObjectToBeCloned as string)?.Clone();
+                var listType = typeof(List<>).MakeGenericType(primaryType.GetGenericArguments().FirstOrDefault() ?? typeof(object));
+                var listClone = (IList)Activator.CreateInstance(listType);
 
-                // Create an empty object and ignore its construtore.
-                tObject = FormatterServices.GetUninitializedObject(primaryType);
-                var fields = desireObjectToBeCloned.GetType().GetFields(Binding);
-                foreach (var property in fields)
+                foreach (var item in (IList)instance)
                 {
-                    if((propertyExcludeList!=null) && (propertyExcludeList.Any()))
-                        if (propertyExcludeList.Contains(property.Name.ExtractBetween("<",">")?.FirstOrDefault()))
-                            continue;
-
-                    if (property.IsInitOnly) // Validate if the property is a writable one.
-                        continue;
-                    var value = property.GetValue(desireObjectToBeCloned);
-                    if (property.FieldType.IsClass && property.FieldType != typeof(string))
-                        tObject.GetType().GetField(property.Name, Binding)?.SetValue
-                            (tObject, DeepClone(value,propertyExcludeList));
-                    else
-                        tObject.GetType().GetField(property.Name, Binding)?.SetValue(tObject, value);
+                    listClone.Add(item == null ? null : DeepClone(item, propertyExcludeList));
                 }
+
+                return listClone;
             }
 
-            return tObject;
+            // Handle strings
+            if (primaryType == typeof(string))
+                return string.Copy((string)instance);
+
+            // Handle value types (primitives, structs, enums)
+            if (primaryType.IsValueType || primaryType.IsPrimitive || primaryType.IsEnum)
+                return instance;
+
+            // Handle complex objects
+            var clonedObject = FormatterServices.GetUninitializedObject(primaryType);
+            var fields = primaryType.GetFields(Binding);
+
+            foreach (var field in fields)
+            {
+                // Skip excluded fields
+                if (propertyExcludeList != null && propertyExcludeList.Any())
+                {
+                    var fieldName = field.Name.ExtractBetween("<", ">")?.FirstOrDefault() ?? field.Name;
+                    if (propertyExcludeList.Contains(fieldName))
+                        continue;
+                }
+
+                // Skip readonly fields
+                if (field.IsInitOnly)
+                    continue;
+
+                var value = field.GetValue(instance);
+
+                // Clone child objects if they are classes (except strings)
+                var clonedValue = field.FieldType.IsClass && field.FieldType != typeof(string)
+                    ? DeepClone(value, propertyExcludeList)
+                    : value;
+
+                field.SetValue(clonedObject, clonedValue);
+            }
+
+            return clonedObject;
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Helper extensions for string operations.
+    /// </summary>
+    public static class StringExtensions
+    {
+        /// <summary>
+        /// Extracts a substring between two delimiters.
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="startDelimiter">The starting delimiter.</param>
+        /// <param name="endDelimiter">The ending delimiter.</param>
+        /// <returns>An enumerable of substrings found between the delimiters.</returns>
+        public static IEnumerable<string> ExtractBetween(this string input, string startDelimiter, string endDelimiter)
+        {
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(startDelimiter) || string.IsNullOrEmpty(endDelimiter))
+                return Enumerable.Empty<string>();
+
+            var results = new List<string>();
+            var startIndex = 0;
+
+            while ((startIndex = input.IndexOf(startDelimiter, startIndex)) != -1)
+            {
+                startIndex += startDelimiter.Length;
+                var endIndex = input.IndexOf(endDelimiter, startIndex);
+
+                if (endIndex == -1)
+                    break;
+
+                results.Add(input[startIndex..endIndex]);
+                startIndex = endIndex + endDelimiter.Length;
+            }
+
+            return results;
+        }
     }
 }
